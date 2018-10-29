@@ -50,7 +50,7 @@ int main(void)
 
 
 
-	   for (xml_node<> *parentNode = mroot->first_node(); mroot; parentNode = parentNode->next_sibling())
+	   for (xml_node<> *parentNode = mroot->first_node(); parentNode; parentNode = parentNode->next_sibling())
 	   {
 
 		   main_name = parentNode->name();
