@@ -30,7 +30,7 @@ int main(void)
 
 
 
-	ifstream myfile("src/theSample.xml");
+	ifstream myfile("src/roomsample.xml");
 	   rapidxml::xml_document<> doc;
 
 	   /* "Read file into vector<char>"  See linked thread above*/
@@ -61,6 +61,7 @@ int main(void)
 		   {
 			   Room p_room(parentNode);
 			   map_rooms.insert( std::pair<string,Room>(p_room.name,p_room) );
+
 		   }
 
 		   else if(main_name.compare("item") == 0)
@@ -89,10 +90,93 @@ int main(void)
 		   }
 
 
-
-
 	   }
 
+		  cout << "testing" <<std::endl;
+
+		   Room * current_room;
+
+		   current_room = &(map_rooms.at("Entrance"));
+
+		   int gameover = 0;
+		   string input;
+		   int errorFlag = 0;
+		   string nextRoom;
+
+
+
+		   while(!gameover)
+		   {
+
+			   if(!(current_room->description.empty()) && !errorFlag)
+			   std::cout << current_room->description <<std::endl;
+			   errorFlag = 1;
+
+
+			   std::getline(std::cin,input);
+			   std::cout << input <<std::endl;
+
+			   if((input[0] == 'n')||(input[0] == 's')||(input[0] == 'e')||(input[0] == 'w') )
+			   {
+
+
+				   if(input.compare("n") == 0)
+				   {
+					   input = "north";
+				   }
+				   else if(input.compare("s") == 0)
+				   {
+					   input = "south";
+				   }
+				   else if(input.compare("w") == 0)
+				   {
+					   input = "west";
+				   }
+				   else if(input.compare("e") == 0)
+				   {
+					   input = "east";
+				   }
+
+
+				   for(Border b : current_room->border)
+				   {
+
+					   //std::cout << b.direction << " vs "<< input << std::endl;
+					   if(input.compare(b.direction) == 0)
+					   {
+						   errorFlag = 0;
+						   nextRoom = b.name;
+						   current_room = &(map_rooms.at(nextRoom));
+					   }
+
+				   }
+
+				   if(errorFlag == 1)
+				   {
+				   std::cout << "Can't go that way" <<std::endl;
+				   }
+
+			   }
+
+
+			   else if(input.compare("open exit") == 0)
+			   {
+
+				   if(current_room->name.compare("Exit") == 0)
+				   {
+					   std::cout << "Game Over" << std::endl;
+					    gameover = 1;
+				   }
+
+				   else
+				   {
+					   std::cout << "Error" << std::endl;
+				   }
+			   }
+
+
+
+		   }
 
 
 }
