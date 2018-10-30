@@ -11,7 +11,7 @@ Trigger::Trigger(xml_node<> * node)
 
 
 	tempString = rnodes->name();
-	std::cout << "		 " << tempString << "  "<< rnodes->value() <<std::endl;
+	//std::cout << "		 " << tempString << "  "<< rnodes->value() <<std::endl;
 
 		   if(tempString.compare("type") == 0)
 		   {
@@ -42,7 +42,7 @@ Trigger::Trigger(xml_node<> * node)
 		  			 for(xml_node<> *cnodes = rnodes->first_node(); cnodes; cnodes=cnodes->next_sibling()){
 
 		  				 c_tempstring = cnodes->name();
-		  				 std::cout << "			" << c_tempstring << "  " << cnodes->value() <<std::endl;
+		  				 //std::cout << "			" << c_tempstring << "  " << cnodes->value() <<std::endl;
 
 		  				 if(c_tempstring.compare("owner") == 0)
 		  				 {

@@ -9,7 +9,7 @@ Item::Item(xml_node<> * node){
 		{
 
 			   tempString = rnodes->name();
-			   std::cout << "	" << tempString << "  "<< rnodes->value() <<std::endl;
+			   //std::cout << "	" << tempString << "  "<< rnodes->value() <<std::endl;
 
 			   if(tempString.compare("name") == 0)
 			   {
@@ -39,23 +39,30 @@ Item::Item(xml_node<> * node){
 
 			   else if(tempString.compare("turnon") == 0)
 			   {
-				   Turnon turnon;
+
 				   string b_tempstring;
 				   for(xml_node<> *bnodes = rnodes->first_node(); bnodes; bnodes=bnodes->next_sibling())
 				   {
 
-						 b_tempstring = rnodes->name();
-						 std::cout << "	" << b_tempstring << "  " << bnodes->value() <<std::endl;
+						 b_tempstring = bnodes->name();
+						 //std::cout << "	" << b_tempstring << "  " << bnodes->value() <<std::endl;
 
 						 if(b_tempstring.compare("print") == 0)
 						 {
 							 turnon.print= bnodes->value();
+
 						 }
 						 else if(b_tempstring.compare("action") == 0)
 						 {
-							turnon.action = bnodes->value();
+							turnon.actions.push_back(bnodes->value());
 						 }
 				  }
+
+
+				   //std::cout << turnon.action <<  " nothing?" << turnon.print <<std::endl;
+
+
+
 			   }
 
 		}

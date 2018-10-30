@@ -11,11 +11,12 @@ Room::Room(xml_node<> * node)
 
 
 		   tempString = rnodes->name();
-		   std::cout << "	" << tempString << " "<< rnodes->value() <<std::endl;
+		   //std::cout << "	" << tempString << " "<< rnodes->value() <<std::endl;
 
 		   if(tempString.compare("name") == 0)
 		   {
 			   name = rnodes->value();
+			   //std::cout << "	" << tempString << " "<< name <<std::endl;
 		   }
 
 		   else if(tempString.compare("status") == 0)
@@ -41,7 +42,7 @@ Room::Room(xml_node<> * node)
 		  			 for(xml_node<> *bnodes = rnodes->first_node(); bnodes; bnodes=bnodes->next_sibling()){
 
 		  				 b_tempstring = bnodes->name();
-		  				 std::cout << "		" << b_tempstring << "  " << bnodes->value() <<std::endl;
+		  				 //std::cout << "		" << b_tempstring << "  " << bnodes->value() <<std::endl;
 
 		  				 if(b_tempstring.compare("name") == 0)
 		  				 {

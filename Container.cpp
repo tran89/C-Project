@@ -11,7 +11,7 @@ Container::Container(xml_node<> * node){
 
 					tempString = rnodes->name();
 
-					std::cout << "	" << tempString << "  "<< rnodes->value()  <<std::endl;
+					//std::cout << "	" << tempString << "  "<< rnodes->value()  <<std::endl;
 
 				   if(tempString.compare("name") == 0)
 				   {
@@ -30,7 +30,7 @@ Container::Container(xml_node<> * node){
 
 				   else if(tempString.compare("accept") == 0)
 				   {
-					   item.push_back(rnodes->value());
+					   accept.push_back(rnodes->value());
 				   }
 
 				   else if(tempString.compare("item") == 0)

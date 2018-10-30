@@ -14,7 +14,7 @@ using namespace rapidxml;
 
 struct Turnon{
 	string print;
-	string action;
+	std::vector<string> actions;
 };
 
 
@@ -29,7 +29,7 @@ public:
    string status;
    string description;
    string writing;
-
+   Turnon turnon;
 
 
    std::vector<Trigger> trigger;
