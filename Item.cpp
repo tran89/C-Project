@@ -39,12 +39,12 @@ Item::Item(xml_node<> * node){
 
 			   else if(tempString.compare("turnon") == 0)
 			   {
-				   Turnon turnon;
+				   
 				   string b_tempstring;
 				   for(xml_node<> *bnodes = rnodes->first_node(); bnodes; bnodes=bnodes->next_sibling())
 				   {
 
-						 b_tempstring = rnodes->name();
+						 b_tempstring = bnodes->name();//fixed
 						 std::cout << "	" << b_tempstring << "  " << bnodes->value() <<std::endl;
 
 						 if(b_tempstring.compare("print") == 0)
