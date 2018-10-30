@@ -53,7 +53,7 @@ Item::Item(xml_node<> * node){
 						 }
 						 else if(b_tempstring.compare("action") == 0)
 						 {
-							turnon.action = bnodes->value();
+							turnon.actions.push_back(bnodes->value());
 						 }
 				  }
 			   }
