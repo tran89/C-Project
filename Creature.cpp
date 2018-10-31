@@ -39,7 +39,7 @@ Creature::Creature(xml_node<> * node){
 
 			   else if(tempString.compare("attack") == 0)
 			   {
-			  			   Attack cAttack;
+			  			   //Attack cAttack;
 			  			   string c_tempstring;
 
 			  			 Condition tcondition;
@@ -76,15 +76,15 @@ Creature::Creature(xml_node<> * node){
 											tcondition.object = cdnodes->value();
 										}
 									 }
-			  				cAttack.condition = tcondition;
+			  				attack.condition = tcondition;
 			  				 }
 			  				else if(c_tempstring.compare("action") == 0)
 			  				{
-			  					cAttack.actions.push_back(cnodes->value());
+			  					attack.actions.push_back(cnodes->value());
 			  				}
 			  				else if(c_tempstring.compare("print") == 0)
 			  				{
-			  					cAttack.print = cnodes->value();
+			  					attack.print = cnodes->value();
 			  				}
 			  			 }
 

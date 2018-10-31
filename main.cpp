@@ -34,6 +34,8 @@ Room * current_room;
 
 
 void run_action(string);
+bool if_string_in_vec(string s, vector<string> the_vector);
+bool check_condition(Condition c);
 
 int gameover = 0;
 
@@ -43,7 +45,7 @@ int main(void)
 
 
 
-	ifstream myfile("src/containersample.xml");
+	ifstream myfile("src/creaturesample.xml");
 	   rapidxml::xml_document<> doc;
 
 	   /* "Read file into vector<char>"  See linked thread above*/
@@ -121,6 +123,7 @@ int main(void)
 		   smatch item_m;
 		   smatch container_m;
 		   smatch item_in_container_m;
+		   smatch creature_with_item;
 
 
 		   regex open_container_p("open ([a-zA-z]+)");
@@ -128,6 +131,7 @@ int main(void)
 		   regex read_item_p("read ([a-zA-z]+)");
 		   regex drop_item_p("drop ([a-zA-z]+)");
 		   regex put_item_p("put ([a-zA-z]+) in ([a-zA-z]+)");
+		   regex attack_creature_p("attack ([a-zA-z]+) with ([a-zA-z]+)");
 
 		   while(!gameover)
 		   {
@@ -244,7 +248,7 @@ int main(void)
 
 						   current_room->item.erase(std::remove(current_room->item.begin(), current_room->item.end(), item_name), current_room->item.end());
 
-						   run_action("delete "+ item_name);
+						   run_action("Delete "+ item_name);
 
 					   }
 
@@ -398,6 +402,90 @@ int main(void)
 			   }
 
 
+			   else if(std::regex_match(input,creature_with_item,attack_creature_p))
+			   {
+				   string creature_name = creature_with_item[1];
+				   string item_name = creature_with_item[2];
+
+				   //std::cout << item_name << std::endl;
+				   Creature * the_creature;
+				   Attack * the_attack;
+
+				   //std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+
+				   if(if_string_in_vec(item_name, inventory) == false)
+				   {
+					   std::cout << "Error no item" << std::endl;
+				   }
+				   else if(if_string_in_vec(creature_name, current_room->creature) == false)
+				   {
+					   std::cout << "Error no creature" << std::endl;
+				   }
+				   //else if(if_string_in_vec(item_name, the_creature->vulnerability) == false)
+				   //{
+					//   std::cout << "Error not vulnerable" << std::endl;
+				   //}
+				   else
+				   {
+
+					   the_creature = &(map_creatures.at(creature_name));
+					   the_attack = &(the_creature->attack);
+
+					   //std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+
+					   if((if_string_in_vec(item_name, the_creature->vulnerability) == false))
+					   {
+						   std::cout << "Error not vulnerable" << std::endl;
+					   }
+
+					   else if(the_attack->condition.owner.empty())
+					   {
+						   std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+
+
+						   //the_attack = &(the_creature->attack);
+
+
+						   if(!(the_attack->print.empty()))
+						   {
+							   std::cout << the_attack->print << std::endl;
+						   }
+
+						   for (string act: the_attack->actions)
+							   {
+							   run_action(act);
+							   }
+					   }
+
+					   else
+					   {
+						   if(check_condition(the_attack->condition))
+						   {
+							   std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+
+							   if(!(the_attack->print.empty()))
+							   {
+								   std::cout << the_attack->print << std::endl;
+							   }
+
+							   for (string act: the_attack->actions)
+								   {
+								   run_action(act);
+								   }
+						   }
+						   else
+						   {
+							   std::cout << "Error" << std::endl;
+						   }
+					   }
+
+
+				   }
+
+
+			   }
+
+
 
 
 		   }
@@ -405,13 +493,22 @@ int main(void)
 }
 
 
+bool if_string_in_vec(string s, vector<string> the_vector)
+{
+	//std::cout << "vuln vector" << s << std::endl;
+	return(std::find(the_vector.begin(), the_vector.end(), s) != the_vector.end());
+}
+
 void run_action(string act)
 {
-	regex i_drop_p("drop ([a-zA-z]+)");
-	regex i_add_p("add ([a-zA-z]+) to ([a-zA-z]+)");
-	regex i_delete_p("delete ([a-zA-z]+)");
-	regex i_update_p("update ([a-zA-z]+) to ([a-zA-z]+)");
-	regex i_gameover_p("gameover");
+
+	//std::cout << "meanwhile::: " << act << std::endl;
+
+	regex i_drop_p("Drop ([a-zA-z]+)");
+	regex i_add_p("Add ([a-zA-z]+) to ([a-zA-z]+)");
+	regex i_delete_p("Delete ([a-zA-z]+)");
+	regex i_update_p("Update ([a-zA-z]+) to ([a-zA-z]+)");
+	regex i_gameover_p("Game Over");
 
 	smatch objects_m;
 	Room* the_room;
@@ -439,14 +536,14 @@ void run_action(string act)
 		   string room_container = objects_m[2];
 
 
-
-
 		   int item_or_creature; //1 for item, 0 for creature
 
 		   //std::cout << item_name << std::endl
 		   if(map_items.find(objects_name) == map_items.end())
 			{
 				item_or_creature = 0;
+				//std::cout << "is creature" << std::endl;
+
 			}
 			else
 			{
@@ -465,6 +562,7 @@ void run_action(string act)
 
 		   else
 		   {
+			   //std::cout << "adding to room" << std::endl;
 
 			   the_room = &(map_rooms.at(room_container));
 			   if(item_or_creature)
@@ -473,7 +571,7 @@ void run_action(string act)
 			   }
 			   else
 			   {
-				   the_room->item.push_back(objects_name);
+				   the_room->creature.push_back(objects_name);
 			   }
 
 
@@ -600,7 +698,110 @@ void run_action(string act)
 	 if(std::regex_match(act,objects_m,i_gameover_p))
 	 {
 		 gameover = 1;
+		 std::cout << "Victory!"<<std::endl;
+
+	 }
+
+	 if(act.length() == 1 && ((act[0] == 'n')||(act[0] == 's')||(act[0] == 'e')||(act[0] == 'w')))
+	 {
+
+
+	    if(act.compare("n") == 0)
+	    {
+	 	   act = "north";
+	    }
+	    else if(act.compare("s") == 0)
+	    {
+	 	   act = "south";
+	    }
+	    else if(act.compare("w") == 0)
+	    {
+	 	   act = "west";
+	    }
+	    else if(act.compare("e") == 0)
+	    {
+	 	   act = "east";
+	    }
+	    for(Border b : current_room->border)
+	    {
+
+	 	   //std::cout << b.direction << " vs "<< act << std::endl;
+	 	   if(act.compare(b.direction) == 0)
+	 	   {
+	 		   current_room = &(map_rooms.at(b.name));
+
+	 		  if(!(current_room->description.empty()))
+	 		 	 	  {
+	 		 	 	  std::cout << current_room->description <<std::endl;
+	 		 	 	  }
+	 	   }
+
+
+
+
+	    }
+
 	 }
 
 
 }
+
+
+bool check_condition(Condition c)
+{
+	bool condition_return = false;
+
+	string the_object = c.object;
+
+	Room* c_room;
+	Item* c_item;
+	Container * c_container;
+	Creature * c_creature;
+
+	if(!(c.owner.empty())) //has, owner,object
+	{
+		if(map_containers.find(c.owner) != map_containers.end())
+			{
+				c_container = &(map_containers.at(c.owner));
+
+				if(c.has.compare("yes") == 0)
+					{
+					condition_return = if_string_in_vec(the_object, c_container->item);
+					}
+				else
+					{
+					condition_return = !(if_string_in_vec(the_object, c_container->item));
+					}
+
+			}
+	}
+	else // object, status
+	{
+		if (map_rooms.find(the_object) != map_rooms.end())
+			{
+				c_room = &(map_rooms.at(the_object));
+				condition_return = (c.status.compare(c_room->status) == 0);
+			}
+		else if (map_items.find(the_object) != map_items.end())
+			{
+				c_item = &(map_items.at(the_object));
+				condition_return = (c.status.compare(c_item->status) == 0);
+			}
+		else if (map_containers.find(the_object) != map_containers.end())
+			{
+				c_container = &(map_containers.at(the_object));
+				condition_return = (c.status.compare(c_container->status) == 0);
+			}
+		else if (map_creatures.find(the_object) != map_creatures.end())
+			{
+				c_creature = &(map_creatures.at(the_object));
+				condition_return = (c.status.compare(c_creature->status) == 0);
+			}
+
+	}
+
+	return condition_return;
+}
+
+
+
