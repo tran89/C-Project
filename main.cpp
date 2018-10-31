@@ -395,12 +395,18 @@ int main(void)
 					   	   		inventory.erase(std::remove(inventory.begin(), inventory.end(), item_name), inventory.end());
 					   	   		std::cout << "added "<<item_name << " to "<< container_name<< std::endl;
 
+					   	   		current_room->item.push_back(item_name);
+
 					   	   	   }
 					   	   	   else if(std::find(the_container->accept.begin(), the_container->accept.end(), item_name) != the_container->accept.end())
 							   {
 					   	   		the_container->item.push_back(item_name);
 					   	   		inventory.erase(std::remove(inventory.begin(), inventory.end(), item_name), inventory.end());
 					   	   		std::cout << "put "<<item_name << " in "<< container_name<< std::endl;
+
+
+					   	   		current_room->item.push_back(item_name);
+
 							   }
 					   	   	   else
 					   	   	   {
@@ -452,9 +458,9 @@ int main(void)
 						   std::cout << "Error not vulnerable" << std::endl;
 					   }
 
-					   else if(the_attack->condition.owner.empty())
+					   else if(!(the_attack->has_condition))
 					   {
-						   std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+						   std::cout << "You assaulted the "<< creature_name << " with the "<< item_name << std::endl;
 
 
 						   //the_attack = &(the_creature->attack);
@@ -475,7 +481,7 @@ int main(void)
 					   {
 						   if(check_condition(the_attack->condition))
 						   {
-							   std::cout << "You assaulted the "<< creature_name << " with the " << item_name << std::endl;
+							   std::cout << "You assaulted the "<< creature_name << " with the" << item_name << std::endl;
 
 							   if(!(the_attack->print.empty()))
 							   {
@@ -497,6 +503,11 @@ int main(void)
 				   }
 
 
+			   }
+
+			   else
+			   {
+				   std::cout << "Error" << std::endl;
 			   }
 			   if(!trigger_override)
 			 	{
@@ -803,6 +814,19 @@ bool check_condition(Condition c)
 					}
 
 			}
+		else if(map_rooms.find(c.owner) != map_rooms.end())
+		{
+			Room* c_room = &(map_rooms.at(c.owner));
+			if(c.has.compare("yes") == 0)
+				{
+				condition_return = if_string_in_vec(the_object, c_room->item) || if_string_in_vec(the_object, c_room->creature) || if_string_in_vec(the_object, c_room->container) ;
+				}
+			else
+				{
+				condition_return = !(if_string_in_vec(the_object, c_room->item) || if_string_in_vec(the_object, c_room->creature) || if_string_in_vec(the_object, c_room->container)) ;
+				}
+
+		}
 	}
 	else // object, status
 	{

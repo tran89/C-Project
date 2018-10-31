@@ -76,7 +76,13 @@ Creature::Creature(xml_node<> * node){
 											tcondition.object = cdnodes->value();
 										}
 									 }
-			  				attack.condition = tcondition;
+
+									 attack.has_condition = true;
+
+									 attack.condition = tcondition;
+
+
+			  				//std::cout << "condition value" << attack.condition.status <<std::endl;
 			  				 }
 			  				else if(c_tempstring.compare("action") == 0)
 			  				{

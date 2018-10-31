@@ -15,6 +15,7 @@ struct Attack{
 	Condition condition;
 	string print;
 	vector <string> actions;
+	bool has_condition;
 };
 
 class Creature {
@@ -25,6 +26,8 @@ public:
    string name;
    string status;
    string description;
+
+
 
 
    std::vector<string> vulnerability;
