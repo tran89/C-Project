@@ -31,11 +31,15 @@ map <string, Trigger> map_triggers;
 std::vector<string> inventory;
 Room * current_room;
 
+string input;
+
 
 
 void run_action(string);
 bool if_string_in_vec(string s, vector<string> the_vector);
 bool check_condition(Condition c);
+void run_trigger_vector( vector<Trigger> trig_vec);
+void check_triggers();
 
 int gameover = 0;
 
@@ -45,7 +49,7 @@ int main(void)
 
 
 
-	ifstream myfile("src/creaturesample.xml");
+	ifstream myfile("src/theSample.xml");
 	   rapidxml::xml_document<> doc;
 
 	   /* "Read file into vector<char>"  See linked thread above*/
@@ -107,7 +111,7 @@ int main(void)
 
 	   }
 
-		  cout << "testing" <<std::endl;
+		  //cout << "testing" <<std::endl;
 
 		   //Room * current_room;
 
@@ -115,7 +119,7 @@ int main(void)
 		   Item * current_item;
 
 
-		   string input;
+		   //string input;
 		   int errorFlag = 0;
 		   string nextRoom;
 
@@ -143,6 +147,8 @@ int main(void)
 
 			   std::getline(std::cin,input);
 
+			   check_triggers();
+
 			   if(input.length() == 1 && ((input[0] == 'n')||(input[0] == 's')||(input[0] == 'e')||(input[0] == 'w')))
 			   {
 
@@ -168,12 +174,14 @@ int main(void)
 				   for(Border b : current_room->border)
 				   {
 
-					   //std::cout << b.direction << " vs "<< input << std::endl;
+
 					   if(input.compare(b.direction) == 0)
 					   {
 						   errorFlag = 0;
 						   nextRoom = b.name;
 						   current_room = &(map_rooms.at(nextRoom));
+
+						   std::cout << "typed: " << input << "to go to"  << nextRoom << std::endl;
 					   }
 
 				   }
@@ -802,6 +810,139 @@ bool check_condition(Condition c)
 
 	return condition_return;
 }
+
+void check_triggers()
+{
+
+	int room_trig_status = 1;
+
+	for(Trigger& trig: current_room->trigger)
+	{
+		for(Condition& cond: trig.condition)
+			if(!check_condition(cond))
+			{
+				room_trig_status = 0;
+			}
+		if(!(if_string_in_vec(input, trig.commands)))
+			{
+				room_trig_status = 0;
+			}
+
+		if(room_trig_status)
+			{
+				if(!(trig.print.empty()))
+				std::cout << trig.print <<std::endl;
+
+				for(string act:trig.actions)
+				{
+					run_action(act);
+				}
+
+
+			}
+
+
+
+	}
+
+	Item* trig_item;
+	Creature* trig_creat;
+	Container* trig_contain;
+
+	for(string itm: inventory)
+	{
+		trig_item = &(map_items.at(itm));
+		if (!(trig_item->trigger.empty()))
+		{
+			run_trigger_vector(trig_item->trigger);
+		}
+
+	}
+
+	for(string creat: current_room->creature)
+	{
+		trig_creat = &(map_creatures.at(creat));
+		if (!(trig_creat->trigger.empty()))
+		{
+			run_trigger_vector(trig_creat->trigger);
+		}
+
+
+	}
+
+	for(string contain: current_room->container)
+	{
+		trig_contain = &(map_containers.at(contain));
+		if (!(trig_contain->trigger.empty()))
+		{
+			run_trigger_vector(trig_contain->trigger);
+		}
+
+		for(string itm: trig_contain->item)
+		{
+			trig_item = &(map_items.at(itm));
+			if (!(trig_item->trigger.empty()))
+			{
+				run_trigger_vector(trig_item->trigger);
+			}
+
+		}
+
+	}
+
+
+
+
+}
+
+void run_trigger_vector(vector<Trigger> trig_vec)
+{
+	int trig_bool = 0;
+
+	for(Trigger& trig: trig_vec)
+		{
+			if((trig.type.compare("permanent")== 0) || (trig.type.compare("single")== 0))
+			{
+
+
+				for(Condition& cond: trig.condition)
+					if(!check_condition(cond))
+					{
+						trig_bool = 0;
+					}
+				if(!(if_string_in_vec(input, trig.commands)))
+					{
+					trig_bool = 0;
+					}
+
+				if(trig_bool)
+					{
+						if(!(trig.print.empty()))
+						{
+						std::cout << trig.print <<std::endl;
+						}
+
+						for(string act:trig.actions)
+						{
+							run_action(act);
+						}
+						if(trig.type.compare("single")== 0)
+						{
+							trig.type = "done";
+						}
+
+					}
+
+			}
+		}
+}
+
+
+
+
+
+
+
 
 
 
