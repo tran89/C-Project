@@ -44,12 +44,12 @@ void check_triggers();
 int gameover = 0;
 bool trigger_override = false;
 
-int main(void)
+int main(int argc, char *argv[])
 {
 
 
 
-	ifstream myfile("src/theSample.xml");
+	ifstream myfile(argv[1]);
 	   rapidxml::xml_document<> doc;
 
 	   /* "Read file into vector<char>"  See linked thread above*/
