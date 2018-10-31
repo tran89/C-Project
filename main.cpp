@@ -38,11 +38,11 @@ string input;
 void run_action(string);
 bool if_string_in_vec(string s, vector<string> the_vector);
 bool check_condition(Condition c);
-void run_trigger_vector( vector<Trigger> trig_vec);
+void run_trigger_vector( vector<Trigger> &trig_vec);
 void check_triggers();
 
 int gameover = 0;
-
+bool trigger_override = false;
 
 int main(void)
 {
@@ -147,9 +147,15 @@ int main(void)
 
 			   std::getline(std::cin,input);
 
+			   trigger_override = false;
+
 			   check_triggers();
 
-			   if(input.length() == 1 && ((input[0] == 'n')||(input[0] == 's')||(input[0] == 'e')||(input[0] == 'w')))
+			   if(trigger_override)
+			   {
+
+			   }
+			   else if(input.length() == 1 && ((input[0] == 'n')||(input[0] == 's')||(input[0] == 'e')||(input[0] == 'w')))
 			   {
 
 
@@ -181,7 +187,7 @@ int main(void)
 						   nextRoom = b.name;
 						   current_room = &(map_rooms.at(nextRoom));
 
-						   std::cout << "typed: " << input << "to go to"  << nextRoom << std::endl;
+						   //std::cout << "typed: " << input << "to go to"  << nextRoom << std::endl;
 					   }
 
 				   }
@@ -492,8 +498,11 @@ int main(void)
 
 
 			   }
-
-
+			   if(!trigger_override)
+			 	{
+				   check_triggers();
+			 	}
+			//check_triggers();
 
 
 		   }
@@ -510,7 +519,7 @@ bool if_string_in_vec(string s, vector<string> the_vector)
 void run_action(string act)
 {
 
-	//std::cout << "meanwhile::: " << act << std::endl;
+	//std::cout << "meanwhile... " << act << std::endl;
 
 	regex i_drop_p("Drop ([a-zA-z]+)");
 	regex i_add_p("Add ([a-zA-z]+) to ([a-zA-z]+)");
@@ -768,7 +777,19 @@ bool check_condition(Condition c)
 
 	if(!(c.owner.empty())) //has, owner,object
 	{
-		if(map_containers.find(c.owner) != map_containers.end())
+
+		if(c.owner.compare("inventory") == 0)
+		{
+			if(c.has.compare("yes") == 0)
+				{
+				condition_return = if_string_in_vec(the_object, inventory);
+				}
+			else
+				{
+				condition_return = !(if_string_in_vec(the_object, inventory));
+				}
+		}
+		else if(map_containers.find(c.owner) != map_containers.end())
 			{
 				c_container = &(map_containers.at(c.owner));
 
@@ -792,8 +813,15 @@ bool check_condition(Condition c)
 			}
 		else if (map_items.find(the_object) != map_items.end())
 			{
+
+
 				c_item = &(map_items.at(the_object));
+
 				condition_return = (c.status.compare(c_item->status) == 0);
+
+				//std::cout << "found creature ITEM trigger return:" << c.status << "vs" << c_item->status <<std::endl;
+				//std::cout << "condition_return:" << condition_return  <<std::endl;
+
 			}
 		else if (map_containers.find(the_object) != map_containers.end())
 			{
@@ -813,7 +841,7 @@ bool check_condition(Condition c)
 
 void check_triggers()
 {
-
+	/*
 	int room_trig_status = 1;
 
 	for(Trigger& trig: current_room->trigger)
@@ -844,6 +872,22 @@ void check_triggers()
 
 
 	}
+	*/
+
+
+
+	run_trigger_vector(current_room->trigger);
+
+
+
+
+
+
+
+
+
+
+
 
 	Item* trig_item;
 	Creature* trig_creat;
@@ -865,6 +909,7 @@ void check_triggers()
 		if (!(trig_creat->trigger.empty()))
 		{
 			run_trigger_vector(trig_creat->trigger);
+			//std::cout << "found creature trigger"  <<std::endl;
 		}
 
 
@@ -895,25 +940,32 @@ void check_triggers()
 
 }
 
-void run_trigger_vector(vector<Trigger> trig_vec)
+void run_trigger_vector(vector<Trigger> &trig_vec)
 {
-	int trig_bool = 0;
+	int trig_bool = 1;
 
 	for(Trigger& trig: trig_vec)
 		{
-			if((trig.type.compare("permanent")== 0) || (trig.type.compare("single")== 0))
+			//if((trig.type.compare("permanent")== 0) || (trig.type.compare("single")== 0))
+			if((trig.type.compare("done")!= 0))
 			{
-
+				//std::cout << "trigger activated" <<std::endl;
 
 				for(Condition& cond: trig.condition)
 					if(!check_condition(cond))
 					{
 						trig_bool = 0;
+						//std::cout << "CHECK CONDTIONS:" << trig_bool <<std::endl;
 					}
-				if(!(if_string_in_vec(input, trig.commands)))
-					{
-					trig_bool = 0;
-					}
+				if(!(trig.commands.empty()))
+				{
+					if(!(if_string_in_vec(input, trig.commands)))
+						{
+							trig_bool = 0;
+							//std::cout << "CHECK COMMANDS:" << trig_bool <<std::endl;
+						}
+				}
+				//std::cout << "trigger bool:" << trig_bool <<std::endl;
 
 				if(trig_bool)
 					{
@@ -926,10 +978,11 @@ void run_trigger_vector(vector<Trigger> trig_vec)
 						{
 							run_action(act);
 						}
-						if(trig.type.compare("single")== 0)
+						if(trig.type.compare("permanent")!= 0)
 						{
 							trig.type = "done";
 						}
+						trigger_override = true;
 
 					}
 
